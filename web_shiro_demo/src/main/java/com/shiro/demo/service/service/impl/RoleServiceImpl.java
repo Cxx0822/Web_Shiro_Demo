@@ -103,24 +103,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         int insert = 0, delete = 0;
 
         for (Object menu : menuList) {
-            // 查找该menu的parent_id，如果menu_role没有，则新建
-            QueryWrapper<Menu> menuQueryWrapper = new QueryWrapper<>();
-            menuQueryWrapper.eq("id", menu);
-            Menu dbMenu = menuMapper.selectOne(menuQueryWrapper);
-
-            roleMenuQueryWrapper.clear();
-            roleMenuQueryWrapper.eq("role_id", roleId);
-            roleMenuQueryWrapper.eq("menu_id", dbMenu.getParentId());
-            RoleMenu dbRoleMenu = roleMenuMapper.selectOne(roleMenuQueryWrapper);
-            if (dbRoleMenu == null) {
-                // 插入menu的parent menu
-                RoleMenu roleMenuParent = new RoleMenu();
-                roleMenuParent.setRoleId(roleId);
-                roleMenuParent.setMenuId(dbMenu.getParentId());
-                // 插入新的menu
-                insert = roleMenuMapper.insert(roleMenuParent);
-            }
-
             // 如果数据库中已有menu，则将合并后的newMenuList中的删除
             if (dbRoleMenuList.contains(menu)) {
                 newMenuList.remove(menu);

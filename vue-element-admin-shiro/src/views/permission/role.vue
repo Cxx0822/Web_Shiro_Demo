@@ -414,13 +414,16 @@ export default {
         })
       }
       // 需要利用qs重新序列号字符串，否则不能正确传入list数据
-      const menuList = qs.stringify(
+      let menuList = qs.stringify(
         {
           menuList: this.role.permissionList
         },
         {
           indices: false
         })
+      if (menuList.length === 0) {
+        menuList = 'menuList=-1'
+      }
       await assignRoleMenu(this.role.id, menuList)
       this.$message.success('分配角色资源成功')
       this.dialogAssignRoleMenuVisible = false
@@ -439,13 +442,16 @@ export default {
         })
       }
       // 需要利用qs重新序列号字符串，否则不能正确传入list数据
-      const permissionList = qs.stringify(
+      let permissionList = qs.stringify(
         {
           permissionList: this.role.permissionList
         },
         {
           indices: false
         })
+      if (permissionList.length === 0) {
+        permissionList = 'permissionList=-1'
+      }
       await assignRolePermission(this.role.id, permissionList)
       this.$message.success('分配角色操作成功')
       this.dialogAssignRolePermissionVisible = false

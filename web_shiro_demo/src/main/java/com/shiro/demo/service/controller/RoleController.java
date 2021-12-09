@@ -1,19 +1,17 @@
 package com.shiro.demo.service.controller;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.shiro.demo.service.entity.Role;
 import com.shiro.demo.service.entity.front.FrontRole;
 import com.shiro.demo.service.mapper.RoleMapper;
 import com.shiro.demo.service.result.R;
+import com.shiro.demo.service.service.RoleMenuService;
+import com.shiro.demo.service.service.RolePermissionService;
 import com.shiro.demo.service.service.RoleService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -32,6 +30,12 @@ public class RoleController {
 
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    private RoleMenuService roleMenuService;
+
+    @Autowired
+    private RolePermissionService rolePermissionService;
 
     @ApiOperation("增加角色信息")
     @RequestMapping(value = "create", method = RequestMethod.POST)
@@ -131,13 +135,22 @@ public class RoleController {
     @ApiOperation("分配角色资源")
     @RequestMapping(value = "assignRoleMenu", method = RequestMethod.POST)
     public R assignRoleMenu(Integer roleId, @RequestParam List<Integer> menuList) {
-        Boolean result = roleService.assignRoleMenu(roleId, menuList);
+        // 判断前端用户是否选择资源
+        if (menuList.contains(-1)) {
+            Integer delete = roleMenuService.delete("role_id", String.valueOf(roleId));
+            if (delete != 0) {
+                return R.ok().message("分配成功");
+            } else {
+                return R.error().message("和数据库数据一致或分配失败");
+            }
+        }else {
+            Boolean result = roleService.assignRoleMenu(roleId, menuList);
 
-        if (result) {
-            return R.ok().message("分配成功");
-        } else {
-            return R.error().message("和数据库数据一致或分配失败");
-
+            if (result) {
+                return R.ok().message("分配成功");
+            } else {
+                return R.error().message("和数据库数据一致或分配失败");
+            }
         }
     }
 
@@ -145,13 +158,24 @@ public class RoleController {
     @RequestMapping(value = "assignRolePermission", method = RequestMethod.POST)
     // 权限包括 资源和操作
     public R assignRolePermission(Integer roleId, @RequestParam List<Integer> permissionList) {
-        Boolean result = roleService.assignRolePermission(roleId, permissionList);
+        // 判断前端用户是否选择资源
+        if (permissionList.contains(-1)) {
+            Integer delete = rolePermissionService.delete("role_id", String.valueOf(roleId));
+            if (delete != 0) {
+                return R.ok().message("分配成功");
+            } else {
+                return R.error().message("和数据库数据一致或分配失败");
+            }
+        }else {
+            Boolean result = roleService.assignRolePermission(roleId, permissionList);
 
-        if (result) {
-            return R.ok().message("分配成功");
-        } else {
-            return R.error().message("和数据库数据一致或分配失败");
+            if (result) {
+                return R.ok().message("分配成功");
+            } else {
+                return R.error().message("和数据库数据一致或分配失败");
+            }
         }
+
     }
 }
 

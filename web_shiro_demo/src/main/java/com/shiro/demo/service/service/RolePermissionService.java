@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2021-12-06
  */
 public interface RolePermissionService extends IService<RolePermission> {
-
+    Integer delete(String columnName, String columnValue);
 }
