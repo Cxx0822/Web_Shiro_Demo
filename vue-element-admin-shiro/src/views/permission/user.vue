@@ -3,6 +3,7 @@
     <!--新建用户-->
     <el-button v-if="checkPermission(createUserRoles)" type="primary" @click="handleCreateUser">新建用户</el-button>
 
+    <!-- 用户信息列表 -->
     <el-table :data="userInfoList" style="width:1251px;margin-top:10px;" border>
       <el-table-column align="center" label="序号" width="50">
         <template slot-scope="scope">
@@ -36,6 +37,7 @@
 
       <el-table-column align="center" label="操作" width="500">
         <template slot-scope="scope">
+          <!-- 判断是否有权限 -->
           <el-button v-if="checkPermission(updateUserRoles)" type="primary" @click="handleUpdateUser(scope)">更新用户信息</el-button>
           <el-button v-if="checkPermission(assignUserRoles)" type="primary" @click="handleAssignUser(scope)">分配用户角色</el-button>
           <el-button v-if="checkPermission(deleteUserRoles)" type="danger" @click="handleDeleteUser(scope)">删除用户</el-button>
@@ -173,11 +175,6 @@ export default {
       assignUserRoles: [],
       // 具有 删除用户 功能的角色
       deleteUserRoles: []
-    }
-  },
-  computed: {
-    routesData() {
-      return this.routes
     }
   },
   created() {

@@ -10,7 +10,7 @@ import Layout from '@/layout'
  * 定义组件名称和组件对象的map对象
 */
 export const componentMap = {
-  // 和数据库中的compoent字段绑定
+  // 和数据库中的component字段绑定
   'layout': require('@/layout').default,
   'permission_role': () => import('@/views/permission/role').then(m => m.default),
   'permission_user': () => import('@/views/permission/user').then(m => m.default)

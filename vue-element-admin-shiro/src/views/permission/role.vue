@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
-    <!--新建角色-->
+    <!-- 新建角色 -->
     <el-button v-if="checkPermission(createRoleRoles)" type="primary" @click="handleCreateRole">新建角色</el-button>
 
-    <!--显示角色信息列表-->
+    <!-- 显示角色信息列表 -->
     <el-table :data="rolesList" style="width:951px;margin-top:30px;" border>
       <el-table-column align="center" label="序号" width="50">
         <template slot-scope="scope">
@@ -22,6 +22,7 @@
       </el-table-column>
       <el-table-column align="center" label="操作" width="550">
         <template slot-scope="scope">
+          <!-- 判断是否有权限 -->
           <el-button v-if="checkPermission(updateRoleRoles)" type="primary" @click="handleUpdateRole(scope)">更新角色信息</el-button>
           <el-button v-if="checkPermission(assignRoleMenuRoles)" type="primary" @click="handleAssignRoleMenu(scope)">分配角色资源</el-button>
           <el-button v-if="checkPermission(assignRolePermissionRoles)" type="primary" @click="handleAssignRolePermission(scope)">分配角色操作</el-button>
@@ -79,7 +80,7 @@
           <el-tree
             ref="menuTree"
             :check-strictly="checkStrictly"
-            :data="routesData"
+            :data="routes"
             :props="defaultProps"
             show-checkbox
             default-expand-all
@@ -164,7 +165,7 @@ export default {
       role: Object.assign({}, defaultRole),
       // 存放当前角色拥有的路由
       routes: [],
-      // 角色表个显示的角色集合
+      // 角色表中显示的角色集合
       rolesList: [],
 
       // 新建/更新 角色控制
@@ -203,11 +204,6 @@ export default {
       // 删除角色
       deleteRoleRoles: [],
       resourceList: []
-    }
-  },
-  computed: {
-    routesData() {
-      return this.routes
     }
   },
   created() {
@@ -265,6 +261,7 @@ export default {
       this.resourceList = res.data.data
       // 给resource和permssion添加title属性，以便于显示树
       this.resourceList.forEach(res => {
+        // 加上10000是为了防止后面传入后端的数据带上父节点resource的id
         res.id = 10000 + res.id
         res.title = res.resourceDescription
         res.permissionList.forEach(perm => {
@@ -272,11 +269,6 @@ export default {
           perm.id = 0 + perm.id
         })
       })
-    },
-
-    async getUpdateRoles() { // updateRolePermission
-      const res = await getRoleNameByPermissionName('updateRolePermission') // 获取能够操作“创建角色”功能的所有角色id
-      this.updateRoleRoles = res.data
     },
 
     // Reshape the routes structure so that it looks the same as the sidebar
@@ -372,9 +364,6 @@ export default {
       this.checkStrictly = true
       this.role = deepClone(scope.row)
       this.$nextTick(() => {
-        // const routes = this.generateRoutes(this.role.routes)
-        // this.$refs.menuTree.setCheckedNodes(this.generateArr(routes))
-        // set checked state of a node not affects its father and child nodes
         const selectedKeys = this.generateArr(this.role.routes)
         this.$refs.menuTree.setCheckedKeys(selectedKeys)
         this.checkStrictly = false
@@ -414,7 +403,8 @@ export default {
     // 确定 分配角色资源 按钮
     async confirmAssignRoleMenu() {
       // 获取选中的树id
-      const selectedKeys = this.$refs.menuTree.getCheckedKeys()
+      // 这里需要加上半选中状态的父节点id
+      const selectedKeys = this.$refs.menuTree.getHalfCheckedKeys().concat(this.$refs.menuTree.getCheckedKeys())
       this.role.permissionList = []
       if (selectedKeys.length > 0) {
         selectedKeys.forEach(key => {
@@ -439,7 +429,7 @@ export default {
     // 确定 分配角色操作 按钮
     async confirmAssignRolePermission() {
       // 获取选中的树id
-      const selectedKeys = this.$refs.permissionTree.getCheckedKeys()
+      const selectedKeys = this.$refs.permissionTree.getHalfCheckedKeys().concat(this.$refs.permissionTree.getCheckedKeys())
       this.role.permissionList = []
       if (selectedKeys.length > 0) {
         selectedKeys.forEach(key => {
